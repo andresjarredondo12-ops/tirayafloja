@@ -42,15 +42,37 @@
             backdrop-filter: blur(10px);
             text-align: center;
             max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .player-setup {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .p-input-group {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 15px;
         }
 
         input {
-            font-size: 1.2rem;
-            padding: 10px;
-            margin: 10px;
-            border-radius: 10px;
+            font-size: 1rem;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 8px;
             border: none;
-            width: 150px;
+            width: 120px;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
         }
 
         .ageBtn {
@@ -63,9 +85,11 @@
             color: #2193b0;
             font-weight: bold;
             cursor: pointer;
+            transition: transform 0.2s;
         }
+        .ageBtn:hover { transform: scale(1.05); }
 
-        /* --- LAYOUT DE JUEGO (RESPONSIVO) --- */
+        /* --- LAYOUT DE JUEGO --- */
         #game {
             display: none;
             flex-direction: column;
@@ -73,44 +97,51 @@
             width: 100%;
         }
 
-        /* Área superior: Preguntas y Cuerda */
         #top-section {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr 1.5fr 1fr;
+            grid-template-columns: 1fr 2fr 1fr; /* Más espacio a la arena */
             align-items: center;
             padding: 10px;
             gap: 10px;
+            max-height: 40%;
         }
 
         .player-ui {
             background: white;
             border-radius: 15px;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 10; /* Asegura que estén por encima del fondo */
         }
 
         .q-text { font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 5px; }
         .a-slot { 
             font-size: 1.8rem; 
-            min-height: 40px; 
+            min-height: 45px; 
             background: #eee; 
             border-radius: 8px;
             border: 2px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #arena {
             position: relative;
-            height: 100px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden; /* Evita que los niños salgan del área central */
+            background: rgba(0,0,0,0.03);
+            border-radius: 20px;
         }
 
         #rope-visual {
             position: absolute;
-            width: 200%;
+            width: 140%;
             height: 8px;
             background: #8b4513;
             border-radius: 10px;
@@ -119,14 +150,15 @@
 
         .char {
             position: absolute;
-            font-size: 50px;
+            font-size: 60px;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5;
         }
 
-        #char1 { left: 15%; }
-        #char2 { right: 15%; }
+        #char1 { left: 20%; }
+        #char2 { right: 20%; }
 
-        /* Área inferior: Teclados (Se ajustan solos) */
+        /* --- TECLADOS --- */
         #keyboards {
             flex: 1;
             display: flex;
@@ -134,32 +166,32 @@
             align-items: center;
             background: rgba(255,255,255,0.4);
             padding: 10px;
-            gap: 20px;
+            gap: 10px;
         }
 
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            gap: 8px;
             width: 100%;
-            max-width: 300px; /* Para que no se deformen en PC */
+            max-width: 280px;
         }
 
         .btn {
             aspect-ratio: 1 / 1;
             font-size: 1.4rem;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             background: white;
-            box-shadow: 0 3px 0 #bbb;
+            box-shadow: 0 4px 0 #bbb;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        .btn:active { transform: translateY(2px); box-shadow: none; }
+        .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #bbb; }
         .btn-ok { background: #4caf50; color: white; aspect-ratio: auto; grid-column: span 2; }
         .btn-del { background: #ff5252; color: white; }
 
-        /* Pantalla de Victoria */
         #victory-screen {
             position: fixed;
             inset: 0;
@@ -170,12 +202,14 @@
             align-items: center;
             z-index: 200;
             color: gold;
+            text-align: center;
         }
 
         @media (max-height: 500px) {
-            .q-text { font-size: 1.2rem; }
-            .btn { font-size: 1rem; padding: 5px; }
-            .char { font-size: 40px; }
+            .q-text { font-size: 1.4rem; }
+            .btn { font-size: 1.1rem; }
+            .char { font-size: 45px; }
+            #arena { height: 80px; }
         }
     </style>
 </head>
@@ -183,14 +217,28 @@
 
 <div id="menu">
     <div class="card">
-        <h1>🎮 Tira y Afloja</h1>
-        <div style="margin-bottom:15px;">
-            <input id="n1" placeholder="Jugador 1" value="Ana">
-            <input id="n2" placeholder="Jugador 2" value="Beto">
+        <h1>🎮 Tira y Afloja Math</h1>
+        
+        <div class="player-setup">
+            <div class="p-input-group">
+                <input id="n1" placeholder="Nombre P1" value="Ana">
+                <select id="g1">
+                    <option value="👧">Niña 👧</option>
+                    <option value="👦">Niño 👦</option>
+                </select>
+            </div>
+            <div class="p-input-group">
+                <input id="n2" placeholder="Nombre P2" value="Beto">
+                <select id="g2">
+                    <option value="👦" selected>Niño 👦</option>
+                    <option value="👧">Niña 👧</option>
+                </select>
+            </div>
         </div>
+
         <h3>Elige el nivel:</h3>
-        <button class="ageBtn" onclick="init(1)">🌟 Inicial (1 al 30)</button>
-        <button class="ageBtn" onclick="init(2)">🚀 Medio (Sumas/Restas)</button>
+        <button class="ageBtn" onclick="init(1)">🌟 Inicial (1-30)</button>
+        <button class="ageBtn" onclick="init(2)">🚀 Medio (+ / -)</button>
         <button class="ageBtn" onclick="init(3)">🏆 Maestro (Tablas)</button>
     </div>
 </div>
@@ -228,19 +276,16 @@
 </div>
 
 <script>
-    let config = { level: 1, pos: 0, target: 180 };
+    let config = { level: 1, pos: 0, target: 120 }; // Target reducido para no tapar paneles
     let p1 = { name: "", ans: "", res: 0 };
     let p2 = { name: "", ans: "", res: 0 };
 
-    // --- SINTETIZADOR DE VOZ ---
     function speak(texto) {
         const msg = new SpeechSynthesisUtterance(texto);
         msg.lang = 'es-ES';
-        msg.rate = 1;
         window.speechSynthesis.speak(msg);
     }
 
-    // --- EFECTOS DE SONIDO ---
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     function playSound(f, t, d) {
         const o = ctx.createOscillator();
@@ -255,6 +300,11 @@
         config.level = lvl;
         p1.name = document.getElementById('n1').value || "Jugador 1";
         p2.name = document.getElementById('n2').value || "Jugador 2";
+        
+        // Asignar Avatares
+        document.getElementById('char1').innerText = document.getElementById('g1').value;
+        document.getElementById('char2').innerText = document.getElementById('g2').value;
+
         document.getElementById('label1').innerText = p1.name;
         document.getElementById('label2').innerText = p2.name;
         
@@ -265,15 +315,15 @@
         renderPad('pad2', 2);
         genQ(1); genQ(2);
         
-        // Iniciar música de fondo tenue
         setInterval(() => {
             if(document.getElementById('game').style.display === 'flex') 
-                playSound(220, 'triangle', 0.2);
-        }, 3000);
+                playSound(220, 'triangle', 0.1);
+        }, 4000);
     }
 
     function renderPad(id, p) {
         const container = document.getElementById(id);
+        container.innerHTML = ""; // Limpiar antes de renderizar
         for(let i=1; i<=9; i++) {
             container.innerHTML += `<button class="btn" onclick="press(${p},${i})">${i}</button>`;
         }
@@ -286,22 +336,22 @@
         let txt, res;
         const r = Math.random();
 
-        if(config.level === 1) { // Rango hasta 30 y series
+        if(config.level === 1) {
             if(r > 0.5) {
-                let a = Math.floor(Math.random() * 20);
+                let a = Math.floor(Math.random() * 15);
                 let b = Math.floor(Math.random() * 10);
                 txt = `${a}+${b}`; res = a + b;
             } else {
-                let start = Math.floor(Math.random() * 28);
+                let start = Math.floor(Math.random() * 20);
                 txt = `${start}, ${start+1}, ?`; res = start + 2;
             }
         } else if(config.level === 2) {
-            let a = Math.floor(Math.random() * 50);
-            let b = Math.floor(Math.random() * 30);
+            let a = Math.floor(Math.random() * 40) + 10;
+            let b = Math.floor(Math.random() * 20) + 1;
             if(r > 0.5) { txt = `${a}+${b}`; res = a+b; }
-            else { txt = Math.max(a,b)+"-"+Math.min(a,b); res = Math.abs(a-b); }
+            else { txt = `${a}-${b}`; res = a-b; }
         } else {
-            let a = Math.floor(Math.random() * 9) + 2;
+            let a = Math.floor(Math.random() * 8) + 2;
             let b = Math.floor(Math.random() * 9) + 1;
             txt = `${a}×${b}`; res = a * b;
         }
@@ -331,13 +381,15 @@
     }
 
     function check(p) {
-        const val = parseInt(p === 1 ? p1.ans : p2.ans);
+        const currentAns = (p === 1 ? p1.ans : p2.ans);
+        if(currentAns === "") return;
+
+        const val = parseInt(currentAns);
         const correctVal = (p === 1 ? p1.res : p2.res);
         const name = (p === 1 ? p1.name : p2.name);
 
         if(val === correctVal) {
             playSound(800, 'sine', 0.2);
-            speak("Muy bien " + name);
             move(p);
             genQ(p);
         } else {
@@ -351,7 +403,7 @@
     }
 
     function move(p) {
-        const step = 40;
+        const step = 30; // Tamaño del tirón
         config.pos += (p === 1 ? -step : step);
         
         const rope = document.getElementById('rope-visual');
@@ -359,21 +411,24 @@
         const c2 = document.getElementById('char2');
 
         const transform = `translateX(${config.pos}px)`;
+        
+        // Aplicar movimiento
         rope.style.transform = transform;
         c1.style.transform = transform + (p === 1 ? ' rotate(-15deg)' : '');
         c2.style.transform = transform + (p === 2 ? ' rotate(15deg)' : '');
 
-        // Quitar inclinación tras un momento
+        // Volver a posición normal
         setTimeout(() => {
             c1.style.transform = transform;
             c2.style.transform = transform;
-        }, 500);
+        }, 400);
 
+        // Verificar victoria
         if(Math.abs(config.pos) >= config.target) {
             const winner = (config.pos < 0 ? p1.name : p2.name);
-            document.getElementById('win-text').innerHTML = `⭐ ¡FELICIDADES! ⭐<br>${winner}`;
+            document.getElementById('win-text').innerHTML = `⭐ ¡VICTORIA! ⭐<br>${winner}`;
             document.getElementById('victory-screen').style.display = 'flex';
-            speak("¡Felicidades " + winner + "! Has ganado el juego.");
+            speak("¡Felicidades " + winner + "! Eres un genio de las matemáticas.");
         }
     }
 </script>
