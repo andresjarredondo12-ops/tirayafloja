@@ -58,7 +58,6 @@ height:100%;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:flex-start;
 padding-top:20px;
 }
 
@@ -85,8 +84,8 @@ gap:10px;
 }
 
 .key{
-font-size:28px;
-padding:20px;
+font-size:26px;
+padding:18px;
 border:none;
 border-radius:12px;
 background:#ff7f50;
@@ -95,8 +94,12 @@ cursor:pointer;
 }
 
 .ok{
-grid-column:span 3;
+grid-column:span 2;
 background:#4CAF50;
+}
+
+.delete{
+background:#ff4d4d;
 }
 
 #arena{
@@ -146,6 +149,7 @@ text-align:center;
 font-size:60px;
 display:none;
 color:white;
+white-space:pre-line;
 }
 
 .gold{
@@ -155,7 +159,7 @@ background:linear-gradient(45deg,#FFD700,#FFC300,#FFEA00);
 .star{
 position:absolute;
 font-size:30px;
-animation:fall 3s linear infinite;
+animation:fall linear infinite;
 }
 
 @keyframes fall{
@@ -230,9 +234,16 @@ let q2=0
 let audioCorrect=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
 
 function speak(text){
+
 let msg=new SpeechSynthesisUtterance(text)
 msg.lang="es-ES"
+msg.rate=0.85
+msg.pitch=1
+msg.volume=1
+
+speechSynthesis.cancel()
 speechSynthesis.speak(msg)
+
 }
 
 function startGame(l){
@@ -274,6 +285,12 @@ zero.innerText="0"
 zero.onclick=()=>press(player,0)
 keypad.appendChild(zero)
 
+let del=document.createElement("button")
+del.className="key delete"
+del.innerText="⌫"
+del.onclick=()=>delNum(player)
+keypad.appendChild(del)
+
 let ok=document.createElement("button")
 ok.className="key ok"
 ok.innerText="OK"
@@ -289,6 +306,18 @@ ans1+=num
 document.getElementById("a1").innerText=ans1
 }else{
 ans2+=num
+document.getElementById("a2").innerText=ans2
+}
+
+}
+
+function delNum(player){
+
+if(player==1){
+ans1=ans1.slice(0,-1)
+document.getElementById("a1").innerText=ans1
+}else{
+ans2=ans2.slice(0,-1)
 document.getElementById("a2").innerText=ans2
 }
 
@@ -361,7 +390,7 @@ if(player==1){
 
 if(Number(ans1)==q1){
 audioCorrect.play()
-speak(name1)
+speak("Muy bien " + name1)
 move(1)
 flash("p1",true)
 }else{
@@ -374,7 +403,7 @@ newQuestion(1)
 
 if(Number(ans2)==q2){
 audioCorrect.play()
-speak(name2)
+speak("Muy bien " + name2)
 move(2)
 flash("p2",true)
 }else{
@@ -430,10 +459,10 @@ function win(name){
 document.body.classList.add("gold")
 
 let w=document.getElementById("winner")
-w.innerText="⭐ ¡Muy bien "+name+"! ⭐\nGanaste y aprendiste"
+w.innerText="⭐ ¡Muy bien " + name + "! ⭐\nGanaste y aprendiste"
 w.style.display="block"
 
-speak("Muy bien "+name+" ganaste y aprendiste")
+speak("Muy bien " + name + " ganaste y aprendiste")
 
 for(let i=0;i<40;i++){
 
